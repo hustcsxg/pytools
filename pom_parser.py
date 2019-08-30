@@ -10,9 +10,9 @@ import requests
 import xmltodict
 from collections import OrderedDict
 
-NEXUS_SEARCH_URL = 'http://nexus.frxs.cn/service/rest/beta/search?maven.groupId=%s&maven.artifactId=%s&maven.baseVersion=%s'
+NEXUS_SEARCH_URL = 'http://nexus.xxxx.cn/service/rest/beta/search?maven.groupId=%s&maven.artifactId=%s&maven.baseVersion=%s'
 MAVEN_CENTER_SEARCH_URL = "https://search.maven.org/solrsearch/select?q=g:%s AND a:%s AND v:%s AND p:%s &start=0&rows=5&wt=json"
-NEXUS_FRXS_DOMAIN_NAME = "nexus.frxs.cn"
+NEXUS_xxxx_DOMAIN_NAME = "nexus.xxxx.cn"
 CENTRAL_MAVEN_DOMAIN = "central.maven.org"
 
 
@@ -116,7 +116,7 @@ class PomParser:
         """
         ret:
         OrderedDict([('repository', OrderedDict([('id', 'nexus'), ('name', 'Nexus Local Repository'),
-        ('url', 'http://nexus.frxs.cn/repository/maven-public/'), ('snapshots', OrderedDict([('enabled', 'true'),
+        ('url', 'http://nexus.xxxx.cn/repository/maven-public/'), ('snapshots', OrderedDict([('enabled', 'true'),
          ('updatePolicy', 'always')])), ('releases', OrderedDict([('enabled', 'true')]))]))])
         :return:
         """
@@ -199,7 +199,7 @@ class MavenRepoSearcher:
             print(e)
         return _exist
 
-    def maven_search_frxs(self, g, a, v, t):
+    def maven_search_xxxx(self, g, a, v, t):
         _exist = False
         search_url = self.private_repo_search_url
         url = search_url % (g, a, v)
@@ -228,8 +228,8 @@ class MavenRepoSearcher:
         methods_list = []
         for url in repo_url_list:
             _search_method = None
-            if NEXUS_FRXS_DOMAIN_NAME in url:
-                _search_method = self.maven_search_frxs
+            if NEXUS_xxxx_DOMAIN_NAME in url:
+                _search_method = self.maven_search_xxxx
             elif CENTRAL_MAVEN_DOMAIN in url:
                 _search_method = self.maven_search
             if _search_method:
