@@ -1,0 +1,15 @@
+[Unit]
+Description=Celery Beat Service
+After=network.target
+
+[Service]
+Type=simple
+# todo: need change WorkingDirectory path to xsops
+WorkingDirectory=/opt/xsyx/xsops
+EnvironmentFile=/etc/celery.conf
+ExecStartPre=/bin/sh -c 'mkdir -p ${CELERYD_PID_DIR} && mkdir -p ${CELERYD_LOG_DIR}'
+ExecStart=/bin/sh -c '${CELERY_BIN} beat -A ${CELERY_APP} --pidfile=${CELERYBEAT_PID_FILE} --logfile=${CELERYBEAT_LOG_FILE} --loglevel=${CELERYBEAT_LOG_LEVEL} ${CELERYBEAT_OPTS}'
+ExecStop=/bin/kill -s TERM $MAINPID
+
+[Install]
+WantedBy=multi-user.target
