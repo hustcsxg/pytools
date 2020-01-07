@@ -1,0 +1,30 @@
+
+发pull request 格式：
+## 变更点(Changes)
+
+- xxxx
+
+## 相关issues (Which issues this PR fixes)
+
+- Fixes #
+
+## 备注(Special notes)
+
+
+issue 模板：
+Issue templeate:
+
+
+是BUG反馈还是需求提交(Is this a BUG REPORT or FEATURE REQUEST)? (choose one):
+
+版本(The versions used):
+
+发生了什么(What happened):
+
+期望是什么(What you expected to happen):
+
+如何复现(How to reproduce it):
+
+相关的日志详情(访问日志及应用日志: paas.log/login.log/esb.log/esb_api.log)和截图等(Log & Screenshot):
+
+备注(Anything else we need to know):
