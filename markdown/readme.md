@@ -38,6 +38,8 @@ README
 * [块引用](#块引用)
 * [代码高亮](#代码高亮)
 * [表格](#表格) 
+	* [普通表格](###普通表格)
+	* [复杂表格](###复杂表格)
 * [表情](#表情)
 * [diff语法](#diff语法)
 
@@ -323,7 +325,7 @@ string &operator+(const string& A,const string& B) //cpp
 ```
 表格
 --------
-## 普通表格：
+### 普通表格：
 ```
 格式如下：
     第一行表头，第二行单元格中至少一个 - 隔开或者---多个隔开.
@@ -376,7 +378,7 @@ string &operator+(const string& A,const string& B) //cpp
 | ---- | ---- |
 |![baidu][baidu-logo] | 百度|
 
-## 复杂表格
+### 复杂表格
 复杂表格可以使用html代码
 ```
 <table>
