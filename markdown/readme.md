@@ -323,6 +323,11 @@ string &operator+(const string& A,const string& B) //cpp
 ```
 表格
 --------
+## 普通表格：
+```
+格式如下：
+    第一行表头，第二行单元格中至少一个 - 隔开或者---多个隔开.
+    对齐方式： 使用:与-相对位置标记左右对齐， :-左对齐，-:右对齐，默认居中对齐。
 
 表头1  | 表头2|
 --------- | --------|
@@ -333,6 +338,18 @@ string &operator+(const string& A,const string& B) //cpp
 | ---------- | -----------|
 | 表格单元   | 表格单元   |
 | 表格单元   | 表格单元   |
+```
+
+表头1  | 表头2|
+--------- | --------|
+表格单元  | 表格单元 |
+表格单元  | 表格单元 |
+
+| 表头1  | 表头2|
+| ---------- | -----------|
+| 表格单元   | 表格单元   |
+| 表格单元   | 表格单元   |
+
 
 ### 对齐
 表格可以指定对齐方式
@@ -358,6 +375,51 @@ string &operator+(const string& A,const string& B) //cpp
 | 图片 | 描述 |
 | ---- | ---- |
 |![baidu][baidu-logo] | 百度|
+
+## 复杂表格
+复杂表格可以使用html代码
+```
+<table>
+    <tr>
+        <th rowspan="2">真实情况</th>
+        <th colspan="2">预测结果</th>
+    </tr>
+    <tr>
+        <td>正例</td>
+        <td>反例</td>
+    </tr>
+    <tr>
+        <td>正例</td>
+        <td>TP(真正例)</td>
+        <td>FN(假反例)</td>
+    </tr>
+    <tr>
+        <td>反例</td>
+        <td>FP(假正例)</td>
+        <td>TN(真反例)</td>
+    </tr>
+</table>
+```
+<table>
+    <tr>
+        <th rowspan="2">真实情况</th>
+        <th colspan="2">预测结果</th>
+    </tr>
+    <tr>
+        <td>正例</td>
+        <td>反例</td>
+    </tr>
+    <tr>
+        <td>正例</td>
+        <td>TP(真正例)</td>
+        <td>FN(假反例)</td>
+    </tr>
+    <tr>
+        <td>反例</td>
+        <td>FP(假正例)</td>
+        <td>TN(真反例)</td>
+    </tr>
+</table>
 
 表情
 ----------
