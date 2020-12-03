@@ -5,4 +5,4 @@
 3. baidu_sms: 百度云平台sms发送短信
 4. celery: 使用systemd管理celery服务。
 5. fabric: python执行shell命令。
-6. tool_error: 错误码定义示例
+6. tool_error: 错误码定义示例.
