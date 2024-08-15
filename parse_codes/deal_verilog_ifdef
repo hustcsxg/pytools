@@ -1,0 +1,173 @@
+KEEP_DEFIFNAME = "SAMSUNG"
+FAKEROW = "FAKESTATEMENTSROW\n"
+from copy import deepcopy
+
+
+class IfDefModule(object):
+    all_instance = dict()
+
+    def __init__(self, name="NONEDEIFNAME", defif_rows="`ifdef NONEDEIFNAME"):
+        # xxx_rows变量都是以\n结尾的,有的是多行的有多个\n
+        self.defifname = name
+        self.defif_rows = defif_rows
+        self.defif_statement_rows = FAKEROW
+        self.exist_else = False
+        self.else_rows = "`else"
+        self.else_statement_rows = FAKEROW
+        self.endfi_row = '`endif'
+        # id用于在外部调用后处理多级嵌套时查找map表把 IFDEFMODULE_2561699479504这种格式的替换为我们最终想要的
+        self.id = id(self)
+
+    def parse_nochild_defif(self, strs):
+        if '`ifdef' not in strs:
+            raise Exception("非ifdef 无法解析")
+        if strs.count("`endif") != 1:
+            raise Exception("该方法不适用与嵌套ifdef解析，如需解析请调用类方法")
+        lines = strs.split("\n")
+        _defif_index = 0
+        _else_index = 0
+        for _id, l in enumerate(lines):
+            if l.strip().startswith("`ifdef"):
+                _defif_index = _id
+                self.defif_rows = l + '\n'
+                self.defifname = l.strip().split()[1]
+            elif l.strip().startswith("`else"):
+                _else_index = _id
+                self.exist_else = True
+                self.else_rows = l + "\n"
+                self.defif_statement_rows = "\n".join(lines[_defif_index + 1:_id]) + "\n"
+            elif l.strip().startswith("`endif"):
+                self.endfi_row = l + "\n"
+                if self.exist_else:
+                    self.else_statement_rows = "\n".join(lines[_else_index + 1:_id]) + "\n"
+                if not self.exist_else:
+                    self.defif_statement_rows = "\n".join(lines[_defif_index + 1:_id]) + "\n"
+
+    @classmethod
+    def replace_special_str(cls, strs):
+        tmp_row_str = ""
+        if not ("@@NOUSED" in strs or "IFDEFMODULE_" in strs):
+            return strs
+        all_rows_tmp = strs.split("\n")
+        all_rows = list()
+        for _i in all_rows_tmp:
+            if not (_i == "@@NOUSED"):
+                all_rows.append(_i)
+        for i in all_rows:
+            if i.startswith("IFDEFMODULE_"):
+                _print_id = i.split("_")[1]
+                _instance = IfDefModule.all_instance[_print_id]
+                _dealed = _instance.get_needed_defif()
+                if "@@NOUSED" in _dealed or "IFDEFMODULE_" in _dealed:
+                    _dealed = IfDefModule.replace_special_str(_dealed)
+                tmp_row_str += _dealed
+            else:
+                tmp_row_str += i + "\n"
+        return tmp_row_str
+
+    @classmethod
+    def parse_from_string(cls, strs):
+        if '`ifdef' not in strs:
+            raise Exception("非ifdef 无法解析")
+        stack_defif = list()
+        lines = strs.split("\n")
+
+        final_lines = deepcopy(lines)
+        for _id, l in enumerate(lines):
+            if l.strip().startswith("`ifdef"):
+                stack_defif.append(_id)
+            elif l.strip().startswith('`endif'):
+                _start_index = stack_defif.pop()
+                _end_index = _id
+                # print(_start_index, _end_index)
+                _my_mod = IfDefModule()
+                _my_mod_row_str = "\n".join(final_lines[_start_index:_end_index + 1])
+                # print("*" * 20)
+                # print(_my_mod_row_str)
+                _my_mod.parse_nochild_defif(_my_mod_row_str)
+                # print(_my_mod.to_str())
+                _my_mod_id = str(_my_mod.id)
+                IfDefModule.all_instance[_my_mod_id] = _my_mod
+                final_lines[_start_index] = "IFDEFMODULE_%s" % (_my_mod_id)
+                for _m in range(_start_index + 1, _end_index + 1):
+                    final_lines[_m] = "@@NOUSED"
+                # print(final_lines)
+                # print("长度为0则是最外层，实际堆长度为%s" % (len(stack_defif)))
+
+        ret = IfDefModule.replace_special_str("\n".join(final_lines))
+        print(ret)
+        return ret
+
+    def to_str(self):
+        ret = self.defif_rows + self.defif_statement_rows
+        if self.exist_else:
+            ret = ret + self.else_rows + self.else_statement_rows
+        ret += self.endfi_row
+        return ret
+
+    def is_pure(self, defif_strings=""):
+        if defif_strings:
+            defifmodule_str = defif_strings
+        else:
+            defifmodule_str = self.to_str()
+        if not (defifmodule_str.count("`ifdef") == defifmodule_str.count("`endif") and defifmodule_str.count(
+                "`ifdef") == 1):
+            return False
+        return True
+
+    def get_needed_defif(self):
+        """
+        获取我们最终想要的defif字符串，多行\n结尾
+        :return:
+        """
+        ret = ""
+        if not self.is_pure():
+            raise Exception("ifdef模块格式错误，或存在嵌套不允许直接纯净化处理")
+        if self.defifname == KEEP_DEFIFNAME:
+            ret = self.to_str()
+        else:
+            if self.exist_else:
+                ret = self.else_statement_rows
+            # 不存在else且defifname不是保留名称的直接删除
+            else:
+                ret = ""
+        return ret
+
+
+if __name__ == "__main__":
+    # process_verilog_file("a.v")
+    ifdefstrs = """
+    not in ifdef keep
+    `ifdef SAMSUNG
+    keep code after samsun
+    `ifdef SAMSUNG11
+        keep code after samsun
+    
+    `else
+        keef code after samsun
+    `endif
+`else
+    keef code after samsun
+`endif"""
+    # ifdefstrs = """
+    #     `ifdef SAMSUNG
+    #         keep code after samsun
+    #
+    #     `else
+    #         keef code after samsun
+    #     `endif
+    # """
+    # ifdefstrs = """
+    #         not in ifdef keep
+    #         `ifdef SAMSUNG
+    #             keep code after samsun
+    #         `endif
+    #     """
+    # ifdefstrs = """
+    #             not in ifdef keep
+    #             `ifdef SAMSUNG11
+    #                 keep code after samsun
+    #             `endif
+    #             not in ifdef keep
+    #         """
+    IfDefModule.parse_from_string(ifdefstrs)
